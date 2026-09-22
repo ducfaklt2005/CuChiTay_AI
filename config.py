@@ -16,11 +16,15 @@ DEFAULT_CONFIG = {
     "tracking_confidence": 0.75,
     "cooldown": 0.8,
     "lock_hold_time": 1.5,
-    "swipe_threshold": 0.12,  # Tỷ lệ so với chiều rộng/cao khung hình
+    "swipe_threshold": 0.10,  # Tỷ lệ so với chiều rộng/cao khung hình
     "lock_gesture": "PEACE_SIGN",
     "show_skeleton": True,
     "enable_toast": True,
     "enable_sound_beep": False,
+    "enable_air_mouse": False,
+    "mouse_speed": 1.25,
+    "mouse_smooth": 0.65,
+    "mouse_scroll_speed": 45,
     "presets": {
         "youtube": {
             "name": "YouTube (Video Dài)",
@@ -44,7 +48,7 @@ DEFAULT_CONFIG = {
             "mappings": {
                 "SWIPE_UP": {"action": "Video Tiếp Theo", "key": "down", "icon": "⬇️", "desc": "Vuốt tay lên: Cuộn video tiếp"},
                 "SWIPE_DOWN": {"action": "Video Trước Đó", "key": "up", "icon": "⬆️", "desc": "Vuốt tay xuống: Quay lại video trước"},
-                "THUMBS_UP": {"action": "Thả Tim / Like", "key": "l", "icon": "💖", "desc": "Thành công / Like: Thả tim video"},
+                "THUMBS_UP": {"action": "TCác cử chỉ động đang bị nhầm lẫn nhiều, cử chỉ vuốt lên/xuống  để xem video tiếp theo trong tiktok vàhả Tim / Like", "key": "l", "icon": "💖", "desc": "Thành công / Like: Thả tim video"},
                 "PINKY_UP": {"action": "Thả Tim / Like", "key": "l", "icon": "💖", "desc": "Ngón út: Thả tim video"},
                 "OPEN_PALM": {"action": "Play / Pause", "key": "space", "icon": "⏯️", "desc": "Xòe bàn tay: Bật/Tắt video"},
                 "FIST": {"action": "Tắt / Mở Tiếng", "key": "m", "icon": "🔇", "desc": "Nắm đấm: Mute tiếng"},

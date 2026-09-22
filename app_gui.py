@@ -236,6 +236,29 @@ class ModernGestureApp:
         )
         self.btn_lock_toggle.pack(side="right", padx=(10, 16), pady=14)
 
+        # Nút Bật / Tắt Chuột Ảo (Air Mouse Mode)
+        is_mouse_on = self.config.get("enable_air_mouse", False)
+        mouse_bg = "#DBEAFE" if is_mouse_on else self.bg_panel
+        mouse_fg = self.accent_blue if is_mouse_on else "#334155"
+        mouse_text = "🖱️ Chuột Ảo: BẬT" if is_mouse_on else "🖱️ Chuột Ảo: TẮT"
+
+        self.btn_air_mouse_toggle = tk.Button(
+            header_frame,
+            text=mouse_text,
+            font=("Segoe UI", 9, "bold"),
+            bg=mouse_bg,
+            fg=mouse_fg,
+            activebackground="#BFDBFE",
+            activeforeground=self.accent_blue,
+            bd=0,
+            relief="flat",
+            padx=12,
+            pady=6,
+            cursor="hand2",
+            command=self._toggle_air_mouse
+        )
+        self.btn_air_mouse_toggle.pack(side="right", padx=6, pady=14)
+
         # Nút Bật / Tắt Camera (Neutral slate style)
         self.btn_camera_toggle = tk.Button(
             header_frame,
@@ -378,17 +401,20 @@ class ModernGestureApp:
         self.notebook = ttk.Notebook(right_frame)
         self.notebook.pack(fill="both", expand=True, padx=6, pady=6)
 
-        # 3 Tabs
+        # 4 Tabs
         self.tab_dashboard = tk.Frame(self.notebook, bg=self.bg_card)
         self.tab_mappings = tk.Frame(self.notebook, bg=self.bg_card)
+        self.tab_mouse = tk.Frame(self.notebook, bg=self.bg_card)
         self.tab_settings = tk.Frame(self.notebook, bg=self.bg_card)
 
         self.notebook.add(self.tab_dashboard, text="  📊 Bảng Điều Khiển  ")
         self.notebook.add(self.tab_mappings, text="  🎮 Ánh Xạ Cử Chỉ  ")
+        self.notebook.add(self.tab_mouse, text="  🖱️ Chuột Ảo  ")
         self.notebook.add(self.tab_settings, text="  ⚙️ Cài Đặt Hệ Thống  ")
 
         self._build_dashboard_tab()
         self._build_mappings_tab()
+        self._build_mouse_tab()
         self._build_settings_tab()
 
     # -------------------------------------------------------------
@@ -787,6 +813,200 @@ class ModernGestureApp:
             messagebox.showinfo("Thông báo", f"Đã khôi phục cài đặt mặc định cho chế độ '{preset_key}'.")
 
     # -------------------------------------------------------------
+    # TAB: CHUỘT ẢO (AIR MOUSE CONTROLLER)
+    # -------------------------------------------------------------
+    def _build_mouse_tab(self):
+        container = tk.Frame(self.tab_mouse, bg=self.bg_card)
+        container.pack(fill="both", expand=True, padx=14, pady=10)
+
+        # 1. Khối Công tắc Bật/Tắt & Trạng thái hoạt động
+        status_group = tk.LabelFrame(
+            container,
+            text=" 🖱️ Trạng Thái Điều Khiển Chuột Ảo ",
+            font=("Segoe UI", 9, "bold"),
+            bg=self.bg_card,
+            fg=self.accent_blue,
+            highlightbackground=self.border_color,
+            highlightthickness=1,
+            padx=12,
+            pady=10
+        )
+        status_group.pack(fill="x", pady=(0, 8))
+
+        row_toggle = tk.Frame(status_group, bg=self.bg_card)
+        row_toggle.pack(fill="x", pady=4)
+
+        is_mouse_on = self.config.get("enable_air_mouse", False)
+        self.btn_mouse_mode_large = tk.Button(
+            row_toggle,
+            text="🟢 ĐANG BẬT CHUỘT ẢO" if is_mouse_on else "⚪ ĐANG TẮT (CHẾ ĐỘ MEDIA)",
+            font=("Segoe UI", 10, "bold"),
+            bg="#DBEAFE" if is_mouse_on else self.bg_panel,
+            fg=self.accent_blue if is_mouse_on else "#334155",
+            activebackground="#BFDBFE",
+            bd=0,
+            relief="flat",
+            padx=16,
+            pady=8,
+            cursor="hand2",
+            command=self._toggle_air_mouse
+        )
+        self.btn_mouse_mode_large.pack(side="left", padx=(0, 15))
+
+        state_box = tk.Frame(row_toggle, bg="#F8FAFC", highlightbackground=self.border_color, highlightthickness=1, padx=12, pady=6)
+        state_box.pack(side="left", fill="x", expand=True)
+
+        tk.Label(
+            state_box,
+            text="Hành động tức thời:",
+            font=("Segoe UI", 8, "bold"),
+            bg="#F8FAFC",
+            fg=self.fg_sub
+        ).pack(anchor="w")
+
+        self.lbl_mouse_live_state = tk.Label(
+            state_box,
+            text="Đang chờ ngón tay...",
+            font=("Segoe UI", 11, "bold"),
+            bg="#F8FAFC",
+            fg=self.accent_blue
+        )
+        self.lbl_mouse_live_state.pack(anchor="w")
+
+        # 2. Khối Tinh chỉnh Độ nhạy & Khử rung
+        tune_group = tk.LabelFrame(
+            container,
+            text=" 🎚️ Tinh Chỉnh Độ Nhạy & Khử Rung Con Trỏ ",
+            font=("Segoe UI", 9, "bold"),
+            bg=self.bg_card,
+            fg=self.fg_text,
+            highlightbackground=self.border_color,
+            highlightthickness=1,
+            padx=12,
+            pady=8
+        )
+        tune_group.pack(fill="x", pady=6)
+
+        # Slider Tốc độ chuột
+        self.scale_mouse_speed = self._create_slider_row(
+            tune_group, "Tốc độ con trỏ (Mouse Speed):",
+            from_=0.5, to=2.5, resolution=0.05, default=self.config.get("mouse_speed", 1.25), unit="x"
+        )
+
+        # Slider Khử rung & Làm mượt
+        self.scale_mouse_smooth = self._create_slider_row(
+            tune_group, "Khử rung & Làm mượt (Smooth):",
+            from_=0.3, to=0.90, resolution=0.05, default=self.config.get("mouse_smooth", 0.65), unit=""
+        )
+
+        # Slider Tốc độ cuộn
+        self.scale_mouse_scroll = self._create_slider_row(
+            tune_group, "Tốc độ cuộn trang (Scroll Speed):",
+            from_=15, to=80, resolution=5, default=self.config.get("mouse_scroll_speed", 45), unit="px"
+        )
+
+        btn_save_mouse = tk.Button(
+            tune_group,
+            text="💾 Áp Dụng & Lưu Cài Đặt Chuột",
+            font=("Segoe UI", 9, "bold"),
+            bg=self.accent_blue,
+            fg="#FFFFFF",
+            activebackground="#1D4ED8",
+            bd=0,
+            relief="flat",
+            padx=14,
+            pady=6,
+            cursor="hand2",
+            command=self._save_mouse_settings
+        )
+        btn_save_mouse.pack(anchor="e", pady=(4, 6))
+
+        # 3. Bảng Hướng Dẫn Cử Chỉ Chuột Ảo
+        guide_group = tk.LabelFrame(
+            container,
+            text=" 💡 Bảng Hướng Dẫn Cử Chỉ Điều Khiển Chuột Không Chạm ",
+            font=("Segoe UI", 9, "bold"),
+            bg=self.bg_card,
+            fg=self.accent_amber,
+            highlightbackground=self.border_color,
+            highlightthickness=1,
+            padx=12,
+            pady=8
+        )
+        guide_group.pack(fill="both", expand=True, pady=(6, 2))
+
+        guide_content = (
+            "• ☝️ Chỉ ngón trỏ giơ lên        : Di chuyển con trỏ chuột mượt mà (Có khử rung thích ứng).\n"
+            "• 👌 Chụm ngón cái & ngón trỏ   : Click chuột trái (Khóa tọa độ 160ms chống trượt).\n"
+            "• 🤏 Chụm giữ ngón cái & trỏ >0.35s: Bật chế độ Kéo Thả (Drag & Drop) cửa sổ hoặc bôi đen.\n"
+            "• ✌️ Chụm ngón cái & ngón giữa   : Click chuột phải (Mở Menu ngữ cảnh).\n"
+            "• 👆👆 Giơ 2 ngón trỏ & giữa     : Nâng lên / Hạ xuống để Cuộn trang web (Scroll Up/Down).\n"
+            "• ✋ Xòe bàn tay / ✊ Nắm đấm    : Dừng chuột / Chế độ nghỉ (Thoải mái hạ tay xuống bàn).\n"
+            "------------------------------------------------------------------------------------\n"
+            "💡 MẸO CHỐNG MỎI TAY: Hãy đặt khuỷu tay lên mặt bàn và chỉ lắc nhẹ cổ tay trong\n"
+            "   vùng khung viền chữ nhật màu xanh trên màn hình camera."
+        )
+        lbl_guide = tk.Label(
+            guide_group,
+            text=guide_content,
+            font=("Segoe UI", 9),
+            bg=self.bg_card,
+            fg="#334155",
+            justify="left",
+            anchor="w"
+        )
+        lbl_guide.pack(fill="both", expand=True, padx=4, pady=4)
+
+    def _toggle_air_mouse(self):
+        """Bật/Tắt chế độ Chuột Ảo (Air Mouse)."""
+        new_state = not self.config.get("enable_air_mouse", False)
+        self.config["enable_air_mouse"] = new_state
+        save_config(self.config)
+        self.gesture_detector.update_settings(self.config)
+        self._sync_mouse_ui_state(new_state)
+
+        status_msg = "ĐÃ BẬT CHẾ ĐỘ CHUỘT ẢO" if new_state else "ĐÃ TẮT CHẾ ĐỘ CHUỘT (VỀ MEDIA)"
+        subtext = "Ưu tiên điều khiển con trỏ máy tính" if new_state else "Sẵn sàng nhận lệnh YouTube / TikTok"
+        if self.config.get("enable_toast", True):
+            self.hud_toast.show("🖱️" if new_state else "📺", status_msg, subtext)
+
+    def _sync_mouse_ui_state(self, is_on):
+        """Đồng bộ trạng thái nút bấm Chuột Ảo trên Header và Tab Chuột."""
+        if is_on:
+            self.btn_air_mouse_toggle.config(
+                text="🖱️ Chuột Ảo: BẬT",
+                bg="#DBEAFE",
+                fg=self.accent_blue
+            )
+            if hasattr(self, "btn_mouse_mode_large"):
+                self.btn_mouse_mode_large.config(
+                    text="🟢 ĐANG BẬT CHUỘT ẢO",
+                    bg="#DBEAFE",
+                    fg=self.accent_blue
+                )
+        else:
+            self.btn_air_mouse_toggle.config(
+                text="🖱️ Chuột Ảo: TẮT",
+                bg=self.bg_panel,
+                fg="#334155"
+            )
+            if hasattr(self, "btn_mouse_mode_large"):
+                self.btn_mouse_mode_large.config(
+                    text="⚪ ĐANG TẮT (CHẾ ĐỘ MEDIA)",
+                    bg=self.bg_panel,
+                    fg="#334155"
+                )
+
+    def _save_mouse_settings(self):
+        """Lưu các tham số độ nhạy chuột."""
+        self.config["mouse_speed"] = float(self.scale_mouse_speed.get())
+        self.config["mouse_smooth"] = float(self.scale_mouse_smooth.get())
+        self.config["mouse_scroll_speed"] = int(self.scale_mouse_scroll.get())
+        save_config(self.config)
+        self.gesture_detector.update_settings(self.config)
+        messagebox.showinfo("Chuột Ảo", "Đã lưu cài đặt độ nhạy chuột thành công!")
+
+    # -------------------------------------------------------------
     # TAB 3: CÀI ĐẶT HỆ THỐNG & ĐỘ NHẠY
     # -------------------------------------------------------------
     def _build_settings_tab(self):
@@ -1113,9 +1333,15 @@ class ModernGestureApp:
         """Hiển thị frame OpenCV lên Tkinter Label."""
         try:
             # Cập nhật thông tin cử chỉ lên thẻ trạng thái
+            is_air_mouse = self.config.get("enable_air_mouse", False)
             if is_locked:
                 self.lbl_current_gesture.config(text="🔒 ĐÃ KHÓA (CHẾ ĐỘ CHỜ)", fg=self.accent_red)
                 self.lbl_cd_status.config(text="💤 Hệ thống đang chờ mở khóa (Giữ chữ V ✌️ 1.5s)", fg=self.accent_amber)
+            elif is_air_mouse:
+                self.lbl_current_gesture.config(text=f"🖱️ {detected_gesture}", fg=self.accent_blue)
+                self.lbl_cd_status.config(text="⚡ Chế độ Chuột Ảo đang hoạt động (Ưu tiên con trỏ)", fg=self.accent_green)
+                if hasattr(self, "lbl_mouse_live_state"):
+                    self.lbl_mouse_live_state.config(text=detected_gesture.replace("MOUSE: ", ""))
             elif detected_gesture:
                 g_vi = GESTURE_NAMES_VI.get(detected_gesture, detected_gesture)
                 self.lbl_current_gesture.config(text=f"✨ {g_vi}", fg=self.accent_blue)
@@ -1242,6 +1468,13 @@ class ModernGestureApp:
         self.config["flip_mirror"] = self.var_flip.get()
         self.config["show_skeleton"] = self.var_skeleton.get()
 
+        if hasattr(self, "scale_mouse_speed"):
+            self.config["mouse_speed"] = float(self.scale_mouse_speed.get())
+        if hasattr(self, "scale_mouse_smooth"):
+            self.config["mouse_smooth"] = float(self.scale_mouse_smooth.get())
+        if hasattr(self, "scale_mouse_scroll"):
+            self.config["mouse_scroll_speed"] = int(self.scale_mouse_scroll.get())
+
         save_config(self.config)
         self.gesture_detector.update_settings(self.config)
         messagebox.showinfo("Thành công", "Đã lưu toàn bộ cài đặt hệ thống thành công!")
@@ -1259,6 +1492,15 @@ class ModernGestureApp:
             self.scale_lock_hold.set(self.config.get("lock_hold_time", 1.5))
             self.scale_confidence.set(self.config.get("detection_confidence", 0.75))
             self.scale_swipe.set(self.config.get("swipe_threshold", 0.12))
+            
+            if hasattr(self, "scale_mouse_speed"):
+                self.scale_mouse_speed.set(self.config.get("mouse_speed", 1.25))
+            if hasattr(self, "scale_mouse_smooth"):
+                self.scale_mouse_smooth.set(self.config.get("mouse_smooth", 0.65))
+            if hasattr(self, "scale_mouse_scroll"):
+                self.scale_mouse_scroll.set(self.config.get("mouse_scroll_speed", 45))
+            self._sync_mouse_ui_state(self.config.get("enable_air_mouse", False))
+
             self._populate_mappings_tree()
             self._update_guide_text()
             messagebox.showinfo("Đã khôi phục", "Hệ thống đã trở về cài đặt ban đầu.")

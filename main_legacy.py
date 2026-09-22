@@ -46,7 +46,7 @@ def is_thumbs_up(landmarks):
     others_closed = (landmarks[8].y > landmarks[6].y and
                      landmarks[12].y > landmarks[10].y and
                      landmarks[16].y > landmarks[14].y and
-                     landmarks[20].y > landmarks[18].y)
+                     landmarks[20].y > landmarks[18].y) 
     return thumb_up and others_closed
 
 def is_thumbs_down(landmarks):

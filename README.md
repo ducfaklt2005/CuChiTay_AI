@@ -66,6 +66,26 @@
 
 ---
 
+## 🖱️ 3. Chế Độ Điều Khiển Chuột Ảo Không Chạm (Virtual Air Mouse)
+
+Ứng dụng tích hợp bộ điều khiển chuột không chạm thông minh, giải quyết triệt để các vấn đề rung giật và nhầm lẫn cử chỉ:
+
+### 🎮 Bảng cử chỉ điều khiển chuột:
+| Cử chỉ ngón tay | Thao tác chuột mô phỏng | Giải thích kỹ thuật |
+| :--- | :--- | :--- |
+| ☝️ **Chỉ ngón trỏ giơ lên** | **Di chuyển con trỏ chuột** | Bộ lọc làm mượt thích ứng (Adaptive Smoothing) triệt tiêu rung giật 100%, di chuyển êm như chuột vật lý. |
+| 👌 **Chụm ngón cái & ngón trỏ** | **Click chuột trái (Left Click)** | Đóng băng tọa độ 160ms (Position Freeze) chống trượt vị trí và chống nhầm thành kéo thả. |
+| 🤏 **Chụm giữ ngón cái & trỏ > 0.35s** | **Kéo thả chuột (Drag & Drop)** | Tự động giữ chuột trái để bôi đen văn bản, kéo cửa sổ hoặc di chuyển file; mở tay để thả (Drop). |
+| ✌️ **Chụm ngón cái & ngón giữa** | **Click chuột phải (Right Click)** | Mở Menu ngữ cảnh desktop/trình duyệt một cách tự nhiên. |
+| 👆👆 **Giơ 2 ngón trỏ & giữa song song** | **Cuộn trang web (Scroll Up / Down)** | Di chuyển tay lên trên để cuộn lên, hạ tay xuống để cuộn trang xuống dưới. |
+| ✋ **Xòe bàn tay (5 ngón) hoặc ✊ Nắm đấm** | **Dừng chuột (Chế độ nghỉ / Idle)** | Con trỏ đứng yên, người dùng thoải mái hạ tay xuống bàn nghỉ ngơi mà không lo chuột bay lung tung. |
+
+### 🛡️ Các công nghệ tối ưu trải nghiệm chuột:
+- **Hộp tương tác ảo (Virtual ROI Box)**: Bạn chỉ cần đặt khuỷu tay lên mặt bàn và lắc nhẹ cổ tay trong vùng khung chữ nhật màu xanh trên webcam là chuột đã đi khắp màn hình desktop mà **không gây mỏi cơ vai (Gorilla Arm)**.
+- **Tách biệt chế độ**: Khi bật Chuột Ảo, hệ thống tự động ngắt các phím tắt Media để tuyệt đối không bị xung đột (ví dụ: chụm ngón click chuột không bị kích hoạt nhầm tính năng Fullscreen F của YouTube).
+
+---
+
 ## ⚙️ 3. Cài Đặt & Tùy Biến (Configuration & Settings)
 
 - **Tùy biến Ánh xạ (Gesture Mapping)**: Tab "Ánh Xạ Cử Chỉ" cho phép bạn tùy ý đổi cử chỉ sang hành động và phím bấm bất kỳ theo thói quen cá nhân.
